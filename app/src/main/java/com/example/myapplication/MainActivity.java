@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton ibscan;
     private TextView tvip10;
     private TextView tvdocentry01;
-    private TextView tvid7;
+    private TextView tvhost7;
     private InputCriteriaAdapter inputCriteriaAdapter;
     private TextView docsap0;
     private static String TAG = MainActivity.class.getSimpleName();
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         tvmobileid0 = findViewById(R.id.tvmobileid0);
         tvip10 = findViewById(R.id.tvip10);
 //        tvdocentry01 = findViewById(R.id.tvdocentry01);
-        tvid7 = findViewById(R.id.tvid7);
+        tvhost7 = findViewById(R.id.tvhost7);
         docsap0 = findViewById(R.id.docsap0);
 
 
@@ -129,8 +129,8 @@ public class MainActivity extends AppCompatActivity {
 
         tvmobileid0.setText(Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
 
-        TextView tvdocentot = findViewById(R.id.tvid7);
-        tvdocentot.setText(String.valueOf(543));
+        TextView tvdocentot = findViewById(R.id.tvhost7);
+        tvdocentot.setText(String.valueOf(1));
 
         TextView tvdocnum = findViewById(R.id.tvdocnum1);
         tvdocnum.setText("S20191115");
@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
 
         inputCriteriaAdapter = new InputCriteriaAdapter(this);
 
-        loadCriteriaIsi(tvid7.getText().toString());
+        loadCriteriaIsi(tvhost7.getText().toString());
 
         ibscan.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -231,85 +231,59 @@ public class MainActivity extends AppCompatActivity {
         Log.e(TAG, "host " + hostHeadEntry);
         Log.e(TAG, "crit " + GlobalVars.BASE_IP + "index.php/upcriteria?hostHeadEntry=" + hostHeadEntry);
 
-            AndroidNetworking.get(GlobalVars.BASE_IP + "index.php/upcriteria?hostHeadEntry=" + hostHeadEntry)
-                    .setPriority(Priority.MEDIUM)
-                    .build()
-                    .getAsJSONObject(new JSONObjectRequestListener() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            List<Upcriteria> result = new ArrayList<>();
-                            try {
-                                Log.e(TAG,"criteria = "+ response.toString(1));
-                                if (result != null)
-                                    result.clear();
+        AndroidNetworking.get(GlobalVars.BASE_IP + "index.php/upcriteria?hostHeadEntry=" + hostHeadEntry)
+                .setPriority(Priority.MEDIUM)
+                .build()
+                .getAsJSONObject(new JSONObjectRequestListener() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        List<Upcriteria> result = new ArrayList<>();
+                        try {
+                            Log.e(TAG,"criteria = "+ response.toString(1));
+                            if (result != null)
+                                result.clear();
 
-                                String message = response.getString("message");
+                            String message = response.getString("message");
 
-                                if (message.equals("Criteria were found")) {
-                                    String records = response.getString("data");
+                            if (message.equals("Criteria were found")) {
+                                String records = response.getString("data");
 
-                                    JSONArray dataArr = new JSONArray(records);
+                                JSONArray dataArr = new JSONArray(records);
 
-                                    if (dataArr.length() > 0) {
-                                        for (int i = 0; i < dataArr.length(); i++) {
-                                            Upcriteria upcriteria = gson.fromJson(dataArr.getJSONObject(i).toString(), Upcriteria.class);
-                                            result.add(upcriteria);
+                                if (dataArr.length() > 0) {
+                                    for (int i = 0; i < dataArr.length(); i++) {
+                                        Upcriteria upcriteria = gson.fromJson(dataArr.getJSONObject(i).toString(), Upcriteria.class);
+                                        result.add(upcriteria);
 
-                                        }
                                     }
                                 }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
-                            inputCriteriaAdapter.addAll(result);
-
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Log.e(TAG, "JSONException " + e.getMessage());
                         }
+                        inputCriteriaAdapter.addAll(result);
 
-                        @Override
-                        public void onError(ANError anError) {
+                    }
 
-                        }
-                    });
-        }
-
-
+                    @Override
+                    public void onError(ANError anError) {
+                        Log.e(TAG, "ANError " + anError.getMessage());
+                    }
+                });
+    }
 
     private void simpan() {
 
         JSONObject jsonObject = new JSONObject();
         try {
-            JSONArray newArr = new JSONArray();
-//            jsonObject.put("docEntry", tvdocentry0.getText().toString());
+            //JSONArray newArr = new JSONArray();
             jsonObject.put("docNum", tvdocnum1.getText().toString());
-//            jsonObject.put("prodNo", tvnoprod1.getText().toString());
-//            jsonObject.put("prodCode", tvprodcode0.getText().toString());
-//            jsonObject.put("prodName", tvnmprod1.getText().toString());
-//            jsonObject.put("prodPlanQty", tvprodplanqty0.getText().toString());
-//            jsonObject.put("prodStatus", tvprodstatus2.getText().toString());
-//            jsonObject.put("routeCode", tvroutecode2.getText().toString());
-//            jsonObject.put("routeName", tvroutename2.getText().toString());
-//            jsonObject.put("sequence", tvsequence1.getText().toString());
-//            jsonObject.put("sequenceQty", tvseqqty1.getText().toString());
-//            jsonObject.put("shiftName", tvshift4.getText().toString());
-//            jsonObject.put("shift", tvcodeshift4.getText().toString());
-//            jsonObject.put("docDate", tvdocdate0.getText().toString());
-//            jsonObject.put("tanggalMulai", tvdocdate0.getText().toString());
-//            jsonObject.put("jamMulai", tvjammulai2.getText().toString());
-//            jsonObject.put("inQty", tvInputQty1.getText().toString());
-//            jsonObject.put("outQty", tvOutputQty1.getText().toString());
-//            jsonObject.put("workCenter", tvworkcenter6.getText().toString());
-////            jsonObject.put("tanggalSelesai", tvtglsel1.getText().toString());
-////            jsonObject.put("jamSelesai", tvjamsel1.getText().toString());
-////            jsonObject.put("status", tvstatus0.getText().toString());
-//            jsonObject.put("posted", tvposted7.getText().toString());
-////            jsonObject.put("UploadTime", tvjamsel1.getText().toString()); muncul otomatis
-////            jsonObject.put("QcName", tvqcname4.getText().toString());
-//            jsonObject.put("userId", tvusername8.getText().toString());
-            jsonObject.put("id", tvid5.getText().toString());
-//            jsonObject.put("mobileId", tvmobileid0.getText().toString());
+            jsonObject.put("prodNo", tvnoprod1.getText().toString());
+            jsonObject.put("docDate", tvdocdate0.getText().toString());
 
-            newArr.put(jsonObject);
-            Log.e(TAG, "coba input header" + newArr.toString(1));
+            //newArr.put(jsonObject);
+//            Log.e(TAG, "coba input header" + newArr.toString(1));
             Log.e(TAG, "id 5 >> " + tvid5.getText().toString());
 
         } catch (JSONException e) {
@@ -324,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 JSONArray array = new JSONArray(element1);
-//                Log.e("arrraaayyyy = ", array.toString(1));
+                Log.e("arrraaayyyy = ", array.toString(1));
 
                 JSONArray newArr = new JSONArray();
 
@@ -343,9 +317,10 @@ public class MainActivity extends AppCompatActivity {
 
                     newArr.put(object);
                 }
+
+                jsonObject.put("detail", newArr);
                 Log.e("input crit ", newArr.toString(1));
-//                simpanSincCriteria(newArr);
-//                simpanSincreject(newArr);
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
